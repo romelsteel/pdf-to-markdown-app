@@ -306,7 +306,6 @@ function buildSectionHTML(label, nurseVal) {
   hdr.innerHTML = `<span class="section-label">${label}</span>`;
   const inp = document.createElement('input');
   inp.className = 'nurse-input';
-  inp.placeholder = 'Jméno sestry…';
   inp.value = nurseVal || '';
   hdr.appendChild(inp);
   box.appendChild(hdr);
@@ -415,9 +414,10 @@ async function exportPDF() {
 // ── Print HTML builder ─────────────────────────────────────────────────────
 function buildPrintHTML(date, labels, nurses, W, H) {
   const pad      = 24;
+  const padLeft  = 75;   // extra space on the left for binder hole-punching
   const dateHdrH = 38;
   const notesH   = 44;
-  const innerW   = W - pad * 2;
+  const innerW   = W - pad - padLeft;
   const innerH   = H - pad * 2 - dateHdrH - notesH;
   const secW     = innerW / 2;
   const secH     = innerH / 2;
@@ -448,8 +448,8 @@ function buildPrintHTML(date, labels, nurses, W, H) {
           <div style="padding:0 8px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#222;background:#d0d8f0;border-right:1px solid #999;white-space:nowrap;">
             ${label}
           </div>
-          <div style="flex:1;padding:0 8px;display:flex;align-items:center;font-size:12px;color:${nurse?'#222':'#bbb'};">
-            ${nurse || 'Jméno sestry'}
+          <div style="flex:1;padding:0 8px;display:flex;align-items:center;font-size:12px;color:#222;">
+            ${nurse || ''}
           </div>
         </div>
         <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
@@ -463,7 +463,7 @@ function buildPrintHTML(date, labels, nurses, W, H) {
   const bottomRow = `<div style="display:flex;">${section(1)}${section(3)}</div>`;
 
   return `
-    <div style="padding:${pad}px;box-sizing:border-box;width:${W}px;height:${H}px;background:white;">
+    <div style="padding:${pad}px ${pad}px ${pad}px ${padLeft}px;box-sizing:border-box;width:${W}px;height:${H}px;background:white;">
       <div style="text-align:center;font-size:18px;font-weight:700;letter-spacing:0.05em;padding:6px 0;height:${dateHdrH}px;display:flex;align-items:center;justify-content:center;">
         ${formatDateCZ(date)}
       </div>
