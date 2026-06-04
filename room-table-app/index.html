@@ -21,213 +21,139 @@
   }
   header h1 { font-size: 1.3rem; font-weight: 600; }
 
-  .app { display: flex; gap: 0; height: calc(100vh - 57px); }
+  .app { display: flex; height: calc(100vh - 57px); }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 320px;
-    min-width: 300px;
+    width: 300px;
+    min-width: 280px;
     background: white;
     border-right: 1px solid #dde1e7;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
   }
-
-  .sidebar-section { padding: 16px; border-bottom: 1px solid #eee; }
-  .sidebar-section h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #777; margin-bottom: 12px; }
+  .sidebar-section { padding: 14px 16px; border-bottom: 1px solid #eee; }
+  .sidebar-section h2 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 10px; }
 
   /* Calendar */
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .cal-header span { font-weight: 600; font-size: 1rem; }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cal-header span { font-weight: 600; font-size: 0.95rem; }
   .cal-nav {
-    background: none;
-    border: 1px solid #dde1e7;
-    border-radius: 6px;
-    width: 28px; height: 28px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
+    background: none; border: 1px solid #dde1e7; border-radius: 5px;
+    width: 26px; height: 26px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; transition: background 0.15s;
   }
   .cal-nav:hover { background: #f0f2f5; }
-
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-  }
-  .cal-day-name {
-    text-align: center;
-    font-size: 0.72rem;
-    color: #888;
-    padding: 4px 0;
-    font-weight: 600;
-  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day-name { text-align: center; font-size: 0.7rem; color: #888; padding: 3px 0; font-weight: 600; }
   .cal-day {
-    text-align: center;
-    padding: 6px 2px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background 0.1s;
-    user-select: none;
+    text-align: center; padding: 5px 2px; border-radius: 5px;
+    cursor: pointer; font-size: 0.82rem; transition: background 0.1s; user-select: none;
   }
   .cal-day:hover:not(.empty):not(.in-range) { background: #e8edff; }
   .cal-day.empty { cursor: default; }
-  .cal-day.selected-start, .cal-day.selected-end {
-    background: #1a56db;
-    color: white;
-    font-weight: 700;
-  }
+  .cal-day.selected-start, .cal-day.selected-end { background: #1a56db; color: white; font-weight: 700; }
   .cal-day.in-range { background: #dbeafe; color: #1a56db; }
   .cal-day.today { font-weight: 700; color: #1a56db; }
   .cal-day.today.selected-start, .cal-day.today.selected-end { color: white; }
-
-  /* Range info */
-  .range-info {
-    font-size: 0.82rem;
-    color: #555;
-    margin-top: 8px;
-    min-height: 18px;
-  }
+  .range-info { font-size: 0.78rem; color: #555; margin-top: 7px; min-height: 16px; }
   .range-info strong { color: #1a56db; }
 
   /* Section labels */
-  .section-labels { display: flex; flex-direction: column; gap: 8px; }
+  .section-labels { display: flex; flex-direction: column; gap: 7px; }
   .label-row { display: flex; align-items: center; gap: 8px; }
-  .label-row span { font-size: 0.8rem; color: #666; width: 60px; flex-shrink: 0; }
+  .label-row span { font-size: 0.78rem; color: #666; width: 55px; flex-shrink: 0; }
   .label-row input {
-    flex: 1;
-    border: 1px solid #dde1e7;
-    border-radius: 6px;
-    padding: 5px 8px;
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.15s;
+    flex: 1; border: 1px solid #dde1e7; border-radius: 5px;
+    padding: 4px 7px; font-size: 0.82rem; outline: none; transition: border-color 0.15s;
   }
   .label-row input:focus { border-color: #1a56db; }
 
-  /* Export button */
   .btn-export {
-    margin: 16px;
-    background: #1a56db;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    width: calc(100% - 32px);
+    margin: 14px 16px;
+    background: #1a56db; color: white; border: none; border-radius: 7px;
+    padding: 11px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
     transition: background 0.15s;
   }
   .btn-export:hover { background: #1446b8; }
   .btn-export:disabled { background: #9ab0e8; cursor: not-allowed; }
 
   /* ── Main preview ── */
-  .main {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
+  .main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
 
   .preview-empty {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #aaa;
-    gap: 12px;
-    font-size: 1rem;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #aaa; gap: 12px; font-size: 1rem;
   }
   .preview-empty svg { opacity: 0.3; }
 
-  /* Day table card */
+  /* ── Day card (2×2 layout) ── */
   .day-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    overflow: hidden;
+    background: white; border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09); margin-bottom: 20px; overflow: hidden;
   }
   .day-card-header {
-    background: #1a56db;
-    color: white;
-    padding: 10px 16px;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+    text-align: center; padding: 8px; font-size: 1rem;
+    font-weight: 700; letter-spacing: 0.04em; color: #222; border-bottom: 1px solid #ddd;
   }
-  .day-table-wrap { overflow-x: auto; }
-  .day-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-    table-layout: fixed;
-  }
-  .day-table thead th {
-    background: #eef2ff;
-    color: #1a56db;
-    font-weight: 700;
-    text-align: center;
-    padding: 7px 4px;
-    border: 1px solid #c7d3f7;
-    font-size: 0.85rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .day-table th.col-num { width: 28px; }
-  .day-table td {
-    border: 1px solid #dde1e7;
-    padding: 0 6px;
-    vertical-align: middle;
-    height: 24px;
-  }
-  .day-table td.row-num {
-    color: #bbb;
-    font-size: 0.75rem;
-    text-align: right;
-    width: 28px;
-    padding-right: 4px;
-    border-right: none;
-    user-select: none;
-  }
-  .day-table td.space-cell {
-    border-left: none;
-  }
-  .day-table tr:nth-child(even) td { background: #fafbff; }
-  .day-table tr:hover td { background: #f0f4ff; }
 
-  /* Print styles — one card per page, fills the page */
+  /* 2×2 grid */
+  .sections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .section-box { border: 1px solid #bbb; margin: -0.5px; }
+
+  /* Section header: label | nurse input */
+  .section-header {
+    display: flex; align-items: stretch;
+    border-bottom: 1px solid #bbb; background: #e8ecf7;
+  }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; color: #222;
+    padding: 5px 7px; white-space: nowrap;
+    border-right: 1px solid #bbb; background: #d0d8f0;
+    display: flex; align-items: center;
+  }
+  .nurse-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 0.8rem; font-family: inherit; padding: 5px 7px; color: #333;
+  }
+  .nurse-input::placeholder { color: #bbb; }
+
+  /* Section table */
+  .section-table { width: 100%; border-collapse: collapse; }
+  .section-table td {
+    border: 1px solid #ccc; height: 22px; padding: 0 4px;
+    font-size: 0.78rem; vertical-align: middle;
+  }
+  .section-table td.note-cell {
+    width: 24%; border-color: #ccc; background: #fafafa;
+  }
+  .section-table td.name-cell { width: 64%; }
+  .section-table td.num-cell { width: 12%; background: #fafafa; text-align: center; }
+  .section-table tr:nth-child(even) td { background: #f7f8fc; }
+  .section-table tr:nth-child(even) td.note-cell,
+  .section-table tr:nth-child(even) td.num-cell { background: #f0f2f8; }
+
+  /* Notes area */
+  .notes-area {
+    padding: 8px 12px; border-top: 1px solid #ccc;
+    font-size: 0.8rem; font-weight: 700; color: #444; min-height: 36px;
+  }
+
+  /* Print */
   @media print {
     body { background: white; }
     header, .sidebar { display: none !important; }
     .app { display: block; height: auto; }
     .main { padding: 0; overflow: visible; }
     .preview-empty { display: none !important; }
-    .day-card {
-      box-shadow: none;
-      border-radius: 0;
-      margin: 0;
-      page-break-after: always;
-      break-after: page;
-      width: 100%;
-    }
+    .day-card { box-shadow: none; border-radius: 0; margin: 0; page-break-after: always; break-after: page; }
     .day-card:last-child { page-break-after: avoid; break-after: avoid; }
-    .day-table { font-size: 9pt; }
-    .day-table td { height: auto; padding: 3px 6px; }
-    .day-table-wrap { overflow: visible; }
   }
 </style>
 </head>
@@ -235,17 +161,14 @@
 
 <header>
   <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
   <h1>Plánování ponorů</h1>
 </header>
 
 <div class="app">
-  <!-- Sidebar -->
   <aside class="sidebar">
-
-    <!-- Calendar -->
     <div class="sidebar-section">
       <h2>Vyberte rozsah dat</h2>
       <div class="cal-header">
@@ -257,28 +180,24 @@
       <div class="range-info" id="rangeInfo">Klikněte na počáteční datum, poté na koncové.</div>
     </div>
 
-    <!-- Section labels -->
     <div class="sidebar-section">
-      <h2>Názvy ponorů</h2>
+      <h2>Názvy expozic</h2>
       <div class="section-labels">
-        <div class="label-row"><span>Ponor 1</span><input id="lbl1" value="Ponor 1" maxlength="24"></div>
-        <div class="label-row"><span>Ponor 2</span><input id="lbl2" value="Ponor 2" maxlength="24"></div>
-        <div class="label-row"><span>Ponor 3</span><input id="lbl3" value="Ponor 3" maxlength="24"></div>
-        <div class="label-row"><span>Ponor 4</span><input id="lbl4" value="Ponor 4" maxlength="24"></div>
+        <div class="label-row"><span>Expozice 1</span><input id="lbl1" value="1. EXPOZICE" maxlength="20"></div>
+        <div class="label-row"><span>Expozice 2</span><input id="lbl2" value="2. EXPOZICE" maxlength="20"></div>
+        <div class="label-row"><span>Expozice 3</span><input id="lbl3" value="3. EXPOZICE" maxlength="20"></div>
+        <div class="label-row"><span>Expozice 4</span><input id="lbl4" value="4. EXPOZICE" maxlength="20"></div>
       </div>
     </div>
 
-    <!-- Export -->
     <button class="btn-export" id="btnExport" disabled>Exportovat do PDF</button>
-
   </aside>
 
-  <!-- Preview -->
   <main class="main" id="preview">
     <div class="preview-empty" id="emptyMsg">
       <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
       <span>Vyberte rozsah dat v kalendáři pro náhled tabulek.</span>
     </div>
@@ -288,166 +207,173 @@
 <script>
 const { jsPDF } = window.jspdf;
 
-// ── State ──────────────────────────────────────────────────────────────────
 let viewYear, viewMonth;
 let rangeStart = null, rangeEnd = null;
 
-// ── Czech locale data ──────────────────────────────────────────────────────
-const MESICE = ['Leden','Únor','Březen','Duben','Květen','Červen',
-                'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-const MESICE_PDF = ['ledna','února','března','dubna','května','června',
-                    'července','srpna','září','října','listopadu','prosince'];
-const DNY_KRATKE = ['Ne','Po','Út','St','Čt','Pá','So'];
-const DNY_PLNE  = ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'];
+const MESICE     = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+const MESICE_GEN = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
+const DNY_ZKRAT  = ['Ne','Po','Út','St','Čt','Pá','So'];
+const DNY_PLNE   = ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'];
 
 function formatDateCZ(date) {
-  return `${DNY_PLNE[date.getDay()]} ${date.getDate()}. ${MESICE_PDF[date.getMonth()]} ${date.getFullYear()}`;
+  return `${DNY_ZKRAT[date.getDay()].toUpperCase()} ${date.getDate()}. ${date.getMonth()+1}. ${date.getFullYear()}`;
 }
-function formatDateShortCZ(date) {
-  return `${date.getDate()}. ${MESICE_PDF[date.getMonth()]} ${date.getFullYear()}`;
+function formatDateLong(date) {
+  return `${DNY_PLNE[date.getDay()]} ${date.getDate()}. ${MESICE_GEN[date.getMonth()]} ${date.getFullYear()}`;
+}
+function formatDateShort(date) {
+  return `${date.getDate()}. ${MESICE_GEN[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 // ── Calendar ───────────────────────────────────────────────────────────────
 function initCalendar() {
   const now = new Date();
-  viewYear = now.getFullYear();
-  viewMonth = now.getMonth();
+  viewYear = now.getFullYear(); viewMonth = now.getMonth();
   renderCalendar();
 }
 
 function renderCalendar() {
   document.getElementById('calTitle').textContent = `${MESICE[viewMonth]} ${viewYear}`;
-
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
-
-  // Czech week starts on Monday: Po Út St Čt Pá So Ne
   ['Po','Út','St','Čt','Pá','So','Ne'].forEach(d => {
     const el = document.createElement('div');
-    el.className = 'cal-day-name';
-    el.textContent = d;
-    grid.appendChild(el);
+    el.className = 'cal-day-name'; el.textContent = d; grid.appendChild(el);
   });
-
-  // Adjust first day: Czech week starts Monday (0=Mon … 6=Sun)
-  let firstDayJS = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
-  let firstDayMon = (firstDayJS + 6) % 7; // convert to Mon-based
-
+  const firstDayMon = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const today = new Date(); today.setHours(0,0,0,0);
 
   for (let i = 0; i < firstDayMon; i++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day empty';
-    grid.appendChild(el);
+    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
   }
-
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(viewYear, viewMonth, d);
-    const el = document.createElement('div');
-    el.className = 'cal-day';
-    el.textContent = d;
-
+    const el = document.createElement('div'); el.className = 'cal-day'; el.textContent = d;
     if (date.getTime() === today.getTime()) el.classList.add('today');
     if (rangeStart && date.getTime() === rangeStart.getTime()) el.classList.add('selected-start');
-    if (rangeEnd && date.getTime() === rangeEnd.getTime()) el.classList.add('selected-end');
+    if (rangeEnd   && date.getTime() === rangeEnd.getTime())   el.classList.add('selected-end');
     if (rangeStart && rangeEnd && date > rangeStart && date < rangeEnd) el.classList.add('in-range');
-
     el.addEventListener('click', () => onDayClick(date));
     grid.appendChild(el);
   }
 }
 
 function onDayClick(date) {
-  if (!rangeStart || (rangeStart && rangeEnd)) {
-    rangeStart = new Date(date); rangeEnd = null;
-  } else {
+  if (!rangeStart || (rangeStart && rangeEnd)) { rangeStart = new Date(date); rangeEnd = null; }
+  else {
     if (date < rangeStart) { rangeEnd = new Date(rangeStart); rangeStart = new Date(date); }
     else { rangeEnd = new Date(date); }
   }
-  renderCalendar();
-  updateRangeInfo();
-  renderPreview();
+  renderCalendar(); updateRangeInfo(); renderPreview();
 }
 
 function updateRangeInfo() {
   const el = document.getElementById('rangeInfo');
   if (!rangeStart) { el.innerHTML = 'Klikněte na počáteční datum, poté na koncové.'; return; }
-  if (!rangeEnd) { el.innerHTML = `Začátek: <strong>${formatDateShortCZ(rangeStart)}</strong> — vyberte konec.`; return; }
+  if (!rangeEnd)   { el.innerHTML = `Začátek: <strong>${formatDateShort(rangeStart)}</strong> — vyberte konec.`; return; }
   const days = Math.round((rangeEnd - rangeStart) / 86400000) + 1;
-  el.innerHTML = `<strong>${formatDateShortCZ(rangeStart)}</strong> → <strong>${formatDateShortCZ(rangeEnd)}</strong> &nbsp;(${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'})`;
+  el.innerHTML = `<strong>${formatDateShort(rangeStart)}</strong> → <strong>${formatDateShort(rangeEnd)}</strong> (${days} ${days===1?'den':days<5?'dny':'dní'})`;
 }
 
 document.getElementById('prevMonth').addEventListener('click', () => {
-  viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } renderCalendar();
+  if (--viewMonth < 0) { viewMonth = 11; viewYear--; } renderCalendar();
 });
 document.getElementById('nextMonth').addEventListener('click', () => {
-  viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } renderCalendar();
+  if (++viewMonth > 11) { viewMonth = 0; viewYear++; } renderCalendar();
 });
 
-// ── Section labels ─────────────────────────────────────────────────────────
+// ── Labels ─────────────────────────────────────────────────────────────────
 function getLabels() {
-  return [1,2,3,4].map(i => document.getElementById(`lbl${i}`).value.trim() || `Ponor ${i}`);
+  return [1,2,3,4].map(i => document.getElementById(`lbl${i}`).value.trim() || `${i}. EXPOZICE`);
 }
 [1,2,3,4].forEach(i => document.getElementById(`lbl${i}`).addEventListener('input', renderPreview));
 
 // ── Preview ────────────────────────────────────────────────────────────────
-function getDatesInRange(start, end) {
-  const dates = []; let cur = new Date(start);
-  while (cur <= end) { dates.push(new Date(cur)); cur.setDate(cur.getDate() + 1); }
-  return dates;
+function getDatesInRange(s, e) {
+  const out = []; let c = new Date(s);
+  while (c <= e) { out.push(new Date(c)); c.setDate(c.getDate()+1); }
+  return out;
 }
 
-function buildDayCard(date, labels) {
+function buildSectionHTML(label, nurseVal) {
+  // Build one section box for the preview
+  const box = document.createElement('div');
+  box.className = 'section-box';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'section-header';
+  hdr.innerHTML = `<span class="section-label">${label}</span>`;
+  const inp = document.createElement('input');
+  inp.className = 'nurse-input';
+  inp.placeholder = 'Jméno sestry…';
+  inp.value = nurseVal || '';
+  hdr.appendChild(inp);
+  box.appendChild(hdr);
+
+  const tbl = document.createElement('table');
+  tbl.className = 'section-table';
+  const tb = document.createElement('tbody');
+  for (let r = 1; r <= 12; r++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="note-cell"></td><td class="name-cell"></td><td class="num-cell"></td>`;
+    tb.appendChild(tr);
+  }
+  tbl.appendChild(tb);
+  box.appendChild(tbl);
+  return box;
+}
+
+function buildDayCard(date, labels, nurses) {
   const card = document.createElement('div');
   card.className = 'day-card';
 
-  const header = document.createElement('div');
-  header.className = 'day-card-header';
-  header.textContent = formatDateCZ(date);
-  card.appendChild(header);
+  // Date header
+  const hdr = document.createElement('div');
+  hdr.className = 'day-card-header';
+  hdr.textContent = formatDateCZ(date);
+  card.appendChild(hdr);
 
-  const wrap = document.createElement('div');
-  wrap.className = 'day-table-wrap';
+  // 2×2 grid — order: 1, 3, 2, 4  (matches the photo)
+  const grid = document.createElement('div');
+  grid.className = 'sections-grid';
+  [0, 2, 1, 3].forEach(idx => {
+    grid.appendChild(buildSectionHTML(labels[idx], nurses ? nurses[idx] : ''));
+  });
+  card.appendChild(grid);
 
-  const table = document.createElement('table');
-  table.className = 'day-table';
+  // Notes
+  const notes = document.createElement('div');
+  notes.className = 'notes-area';
+  notes.textContent = 'POZNÁMKY:';
+  card.appendChild(notes);
 
-  const thead = document.createElement('thead');
-  const hrow = document.createElement('tr');
-  hrow.innerHTML = `<th class="col-num">#</th>` + labels.map(l => `<th>${l}</th>`).join('');
-  thead.appendChild(hrow);
-  table.appendChild(thead);
-
-  const tbody = document.createElement('tbody');
-  for (let r = 1; r <= 16; r++) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="row-num">${r}</td>` + labels.map(() => `<td class="space-cell"></td>`).join('');
-    tbody.appendChild(tr);
-  }
-  table.appendChild(tbody);
-  wrap.appendChild(table);
-  card.appendChild(wrap);
   return card;
+}
+
+function getNursesFromCard(card) {
+  // Returns nurses in logical order [0,1,2,3] = expozice 1,2,3,4
+  // Grid order is [0,2,1,3] so we need to reverse that
+  const inputs = card.querySelectorAll('.nurse-input');
+  const gridOrder = [0, 2, 1, 3];
+  const nurses = ['','','',''];
+  inputs.forEach((inp, pos) => { nurses[gridOrder[pos]] = inp.value.trim(); });
+  return nurses;
 }
 
 function renderPreview() {
   const preview = document.getElementById('preview');
   const emptyMsg = document.getElementById('emptyMsg');
   const btnExport = document.getElementById('btnExport');
-
   [...preview.querySelectorAll('.day-card')].forEach(c => c.remove());
 
   if (!rangeStart || !rangeEnd) {
-    emptyMsg.style.display = 'flex';
-    btnExport.disabled = true;
-    return;
+    emptyMsg.style.display = 'flex'; btnExport.disabled = true; return;
   }
-  emptyMsg.style.display = 'none';
-  btnExport.disabled = false;
+  emptyMsg.style.display = 'none'; btnExport.disabled = false;
 
   const labels = getLabels();
-  getDatesInRange(rangeStart, rangeEnd).forEach(d => preview.appendChild(buildDayCard(d, labels)));
+  getDatesInRange(rangeStart, rangeEnd).forEach(d => preview.appendChild(buildDayCard(d, labels, null)));
 }
 
 // ── PDF Export ─────────────────────────────────────────────────────────────
@@ -457,87 +383,96 @@ document.getElementById('btnExport').addEventListener('click', () => {
 
 async function exportPDF() {
   if (!rangeStart || !rangeEnd) return;
-
   const btn = document.getElementById('btnExport');
-  btn.disabled = true;
-  btn.textContent = 'Generování…';
+  btn.disabled = true; btn.textContent = 'Generování…';
 
   const labels = getLabels();
-  const dates = getDatesInRange(rangeStart, rangeEnd);
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const dates  = getDatesInRange(rangeStart, rangeEnd);
+  const doc    = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const A4_W   = 794, A4_H = 1123;
 
-  // A4 in px at 96 dpi
-  const A4_W = 794, A4_H = 1123;
-
-  // Off-screen render container sized exactly to A4
   const container = document.createElement('div');
-  container.style.cssText = `
-    position: fixed; left: -9999px; top: 0;
-    width: ${A4_W}px; height: ${A4_H}px;
-    background: white; overflow: hidden;
-    font-family: 'Segoe UI', sans-serif;
-  `;
+  container.style.cssText = `position:fixed;left:-9999px;top:0;width:${A4_W}px;height:${A4_H}px;background:white;overflow:hidden;font-family:'Segoe UI',sans-serif;`;
   document.body.appendChild(container);
+
+  const cards = document.querySelectorAll('.day-card');
 
   for (let i = 0; i < dates.length; i++) {
     if (i > 0) doc.addPage();
+    const nurses = cards[i] ? getNursesFromCard(cards[i]) : ['','','',''];
+    container.innerHTML = buildPrintHTML(dates[i], labels, nurses, A4_W, A4_H);
 
-    container.innerHTML = buildPrintHTML(dates[i], labels, A4_W, A4_H);
-
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      width: A4_W,
-      height: A4_H,
-    });
-
-    const img = canvas.toDataURL('image/jpeg', 0.97);
-    doc.addImage(img, 'JPEG', 0, 0, 210, 297);
+    const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: A4_W, height: A4_H });
+    doc.addImage(canvas.toDataURL('image/jpeg', 0.97), 'JPEG', 0, 0, 210, 297);
   }
 
   document.body.removeChild(container);
-
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   doc.save(`ponory_${fmt(rangeStart)}_az_${fmt(rangeEnd)}.pdf`);
-
-  btn.disabled = false;
-  btn.textContent = 'Exportovat do PDF';
+  btn.disabled = false; btn.textContent = 'Exportovat do PDF';
 }
 
-function buildPrintHTML(date, labels, pageW, pageH) {
-  const pad = 30;           // page padding px
-  const titleH = 52;        // date bar px
-  const colHeaderH = 38;    // section header row px
-  const tableW = pageW - pad * 2;
-  const rowNumW = 32;
-  const secW = (tableW - rowNumW) / 4;
-  const rowAreaH = pageH - pad * 2 - titleH - colHeaderH;
-  const rowH = Math.floor(rowAreaH / 16);
+// ── Print HTML builder ─────────────────────────────────────────────────────
+function buildPrintHTML(date, labels, nurses, W, H) {
+  const pad      = 24;
+  const dateHdrH = 38;
+  const notesH   = 44;
+  const innerW   = W - pad * 2;
+  const innerH   = H - pad * 2 - dateHdrH - notesH;
+  const secW     = innerW / 2;
+  const secH     = innerH / 2;
 
-  const headerCols = `<th style="width:${rowNumW}px;background:#eef2ff;border:1px solid #c7d3f7;"></th>`
-    + labels.map(l => `<th style="width:${secW}px;background:#eef2ff;color:#1a56db;font-weight:700;font-size:15px;text-align:center;border:1px solid #c7d3f7;padding:6px 4px;">${l}</th>`).join('');
+  // Each section: header height + 12 rows
+  const secHdrH  = 28;
+  const rowH     = Math.floor((secH - secHdrH) / 12);
+  const noteColW = Math.round(secW * 0.24);
+  const numColW  = Math.round(secW * 0.11);
+  const nameColW = secW - noteColW - numColW;
 
-  let rows = '';
-  for (let r = 1; r <= 16; r++) {
-    const bg = r % 2 === 0 ? '#fafbff' : '#ffffff';
-    rows += `<tr>
-      <td style="background:${bg};border:1px solid #dde1e7;text-align:right;padding-right:5px;color:#ccc;font-size:12px;height:${rowH}px;width:${rowNumW}px;">${r}</td>
-      ${labels.map(() => `<td style="background:${bg};border:1px solid #dde1e7;height:${rowH}px;width:${secW}px;"></td>`).join('')}
-    </tr>`;
+  function section(idx) {
+    const label  = labels[idx];
+    const nurse  = nurses[idx] || '';
+    let rows = '';
+    for (let r = 1; r <= 12; r++) {
+      const bg = r % 2 === 0 ? '#f5f6fc' : '#ffffff';
+      const altBg = r % 2 === 0 ? '#eef0f8' : bg;
+      rows += `<tr>
+        <td style="width:${noteColW}px;height:${rowH}px;background:${altBg};border:1px solid #bbb;"></td>
+        <td style="width:${nameColW}px;height:${rowH}px;background:${bg};border:1px solid #bbb;"></td>
+        <td style="width:${numColW}px;height:${rowH}px;background:${altBg};border:1px solid #bbb;"></td>
+      </tr>`;
+    }
+    return `
+      <div style="width:${secW}px;height:${secH}px;border:1px solid #999;box-sizing:border-box;">
+        <div style="display:flex;align-items:stretch;border-bottom:1px solid #999;height:${secHdrH}px;background:#e8ecf7;">
+          <div style="padding:0 8px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#222;background:#d0d8f0;border-right:1px solid #999;white-space:nowrap;">
+            ${label}
+          </div>
+          <div style="flex:1;padding:0 8px;display:flex;align-items:center;font-size:12px;color:${nurse?'#222':'#bbb'};">
+            ${nurse || 'Jméno sestry'}
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
   }
 
+  // Grid order: top-left=1, top-right=3, bottom-left=2, bottom-right=4
+  const topRow    = `<div style="display:flex;">${section(0)}${section(2)}</div>`;
+  const bottomRow = `<div style="display:flex;">${section(1)}${section(3)}</div>`;
+
   return `
-    <div style="padding:${pad}px;box-sizing:border-box;width:${pageW}px;height:${pageH}px;background:white;">
-      <div style="background:#1a56db;color:white;padding:10px 16px;font-size:20px;font-weight:700;height:${titleH}px;display:flex;align-items:center;border-radius:4px 4px 0 0;">
+    <div style="padding:${pad}px;box-sizing:border-box;width:${W}px;height:${H}px;background:white;">
+      <div style="text-align:center;font-size:18px;font-weight:700;letter-spacing:0.05em;padding:6px 0;height:${dateHdrH}px;display:flex;align-items:center;justify-content:center;">
         ${formatDateCZ(date)}
       </div>
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
-        <thead><tr>${headerCols}</tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
+      ${topRow}
+      ${bottomRow}
+      <div style="padding:8px 12px;border-top:1px solid #bbb;margin-top:2px;font-size:12px;font-weight:700;color:#444;height:${notesH}px;">
+        POZNÁMKY:
+      </div>
+    </div>`;
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
