@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF → Markdown</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1a56db;
+    --blue-dark: #1240a8;
+    --blue-light: #e8edff;
+    --bg: #f0f2f5;
+    --border: #dde1e7;
+    --ok: #16a34a;
+    --err: #dc2626;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #222; }
+
+  header {
+    background: var(--blue);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  header h1 { font-size: 1.25rem; font-weight: 600; }
+  header .sub { font-size: 0.78rem; opacity: 0.85; margin-left: auto; }
+
+  /* pixel-art vlk maskot */
+  .bot { width: 32px; height: 32px; image-rendering: pixelated; cursor: pointer; transition: transform 0.15s; }
+  .bot:hover { transform: translateY(-2px) rotate(-4deg); }
+  .bot.spin { animation: botscan 0.7s steps(2) infinite; }
+  @keyframes botscan { 50% { transform: translateY(-3px); } }
+
+  main { max-width: 980px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* dropzone */
+  .drop {
+    border: 2px dashed var(--border);
+    background: white;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .drop:hover { border-color: var(--blue); background: #fafbff; }
+  .drop.over { border-color: var(--blue); background: var(--blue-light); transform: scale(1.005); }
+  .drop .big { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
+  .drop .small { font-size: 0.82rem; color: #777; }
+  .drop .formats { font-size: 0.72rem; color: #999; margin-top: 10px; }
+
+  /* toolbar */
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 10px; align-items: center; }
+  .toolbar .count { font-size: 0.85rem; color: #555; margin-right: auto; }
+  button {
+    font-family: inherit; font-size: 0.85rem; cursor: pointer;
+    border: 1px solid var(--border); background: white; color: #333;
+    padding: 8px 14px; border-radius: 7px; transition: all 0.12s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  button:hover:not(:disabled) { background: #f0f2f5; border-color: #c5cbd4; }
+  button.primary { background: var(--blue); border-color: var(--blue); color: white; }
+  button.primary:hover:not(:disabled) { background: var(--blue-dark); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  /* result cards */
+  .card {
+    background: white; border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; cursor: pointer; user-select: none;
+  }
+  .card-head:hover { background: #fafbff; }
+  .card-head .name { font-weight: 600; font-size: 0.92rem; flex: 1; word-break: break-all; }
+  .card-head .meta { font-size: 0.74rem; color: #888; white-space: nowrap; }
+  .badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .badge.ok { background: #dcfce7; color: var(--ok); }
+  .badge.err { background: #fee2e2; color: var(--err); }
+  .chev { transition: transform 0.15s; color: #aaa; font-size: 0.8rem; }
+  .card.open .chev { transform: rotate(90deg); }
+
+  .card-body { display: none; border-top: 1px solid #eee; }
+  .card.open .card-body { display: block; }
+  .card-actions { display: flex; gap: 8px; padding: 10px 14px; flex-wrap: wrap; background: #fafbfc; }
+  textarea {
+    width: 100%; border: none; padding: 14px; font-family: 'Consolas','Courier New',monospace;
+    font-size: 0.82rem; line-height: 1.5; resize: vertical; min-height: 220px;
+    color: #1a1a1a; background: #fdfdfd; outline: none;
+  }
+  .err-msg { padding: 14px; color: var(--err); font-size: 0.85rem; }
+
+  .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #222; color: white; padding: 11px 20px; border-radius: 8px;
+    font-size: 0.85rem; opacity: 0; transition: all 0.25s; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  .empty { text-align: center; color: #aaa; font-size: 0.85rem; padding: 30px 0; }
+  input[type=file] { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <!-- pixel-art vlk „MarkWolf“ -->
+  <svg class="bot" id="bot" viewBox="0 0 16 16" shape-rendering="crispEdges" title="Vlk">
+    <rect x="3" y="0" width="1" height="1" fill="#262834"/><rect x="12" y="0" width="1" height="1" fill="#262834"/>
+    <rect x="2" y="1" width="1" height="1" fill="#262834"/><rect x="3" y="1" width="1" height="1" fill="#707886"/><rect x="4" y="1" width="1" height="1" fill="#262834"/><rect x="11" y="1" width="1" height="1" fill="#262834"/><rect x="12" y="1" width="1" height="1" fill="#707886"/><rect x="13" y="1" width="1" height="1" fill="#262834"/>
+    <rect x="2" y="2" width="1" height="1" fill="#262834"/><rect x="3" y="2" width="1" height="1" fill="#707886"/><rect x="4" y="2" width="1" height="1" fill="#707886"/><rect x="5" y="2" width="1" height="1" fill="#262834"/><rect x="10" y="2" width="1" height="1" fill="#262834"/><rect x="11" y="2" width="1" height="1" fill="#707886"/><rect x="12" y="2" width="1" height="1" fill="#707886"/><rect x="13" y="2" width="1" height="1" fill="#262834"/>
+    <rect x="2" y="3" width="1" height="1" fill="#262834"/><rect x="3" y="3" width="1" height="1" fill="#707886"/><rect x="4" y="3" width="1" height="1" fill="#707886"/><rect x="5" y="3" width="1" height="1" fill="#262834"/><rect x="6" y="3" width="1" height="1" fill="#262834"/><rect x="9" y="3" width="1" height="1" fill="#262834"/><rect x="10" y="3" width="1" height="1" fill="#262834"/><rect x="11" y="3" width="1" height="1" fill="#707886"/><rect x="12" y="3" width="1" height="1" fill="#707886"/><rect x="13" y="3" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="4" width="1" height="1" fill="#262834"/><rect x="2" y="4" width="1" height="1" fill="#707886"/><rect x="3" y="4" width="1" height="1" fill="#707886"/><rect x="4" y="4" width="1" height="1" fill="#707886"/><rect x="5" y="4" width="1" height="1" fill="#707886"/><rect x="6" y="4" width="1" height="1" fill="#262834"/><rect x="7" y="4" width="1" height="1" fill="#262834"/><rect x="8" y="4" width="1" height="1" fill="#262834"/><rect x="9" y="4" width="1" height="1" fill="#262834"/><rect x="10" y="4" width="1" height="1" fill="#707886"/><rect x="11" y="4" width="1" height="1" fill="#707886"/><rect x="12" y="4" width="1" height="1" fill="#707886"/><rect x="13" y="4" width="1" height="1" fill="#707886"/><rect x="14" y="4" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="5" width="1" height="1" fill="#262834"/><rect x="2" y="5" width="11" height="1" fill="#707886"/><rect x="14" y="5" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="6" width="1" height="1" fill="#262834"/><rect x="2" y="6" width="1" height="1" fill="#707886"/><rect x="3" y="6" width="2" height="1" fill="#ffc440"/><rect x="5" y="6" width="6" height="1" fill="#707886"/><rect x="11" y="6" width="2" height="1" fill="#ffc440"/><rect x="13" y="6" width="1" height="1" fill="#707886"/><rect x="14" y="6" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="7" width="1" height="1" fill="#262834"/><rect x="2" y="7" width="1" height="1" fill="#707886"/><rect x="3" y="7" width="2" height="1" fill="#ffc440"/><rect x="5" y="7" width="1" height="1" fill="#707886"/><rect x="6" y="7" width="4" height="1" fill="#4e5462"/><rect x="10" y="7" width="1" height="1" fill="#707886"/><rect x="11" y="7" width="2" height="1" fill="#ffc440"/><rect x="13" y="7" width="1" height="1" fill="#707886"/><rect x="14" y="7" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="8" width="1" height="1" fill="#262834"/><rect x="2" y="8" width="4" height="1" fill="#707886"/><rect x="6" y="8" width="5" height="1" fill="#4e5462"/><rect x="11" y="8" width="3" height="1" fill="#707886"/><rect x="14" y="8" width="1" height="1" fill="#262834"/>
+    <rect x="1" y="9" width="1" height="1" fill="#262834"/><rect x="2" y="9" width="1" height="1" fill="#a8b0be"/><rect x="3" y="9" width="4" height="1" fill="#707886"/><rect x="7" y="9" width="2" height="1" fill="#4e5462"/><rect x="9" y="9" width="4" height="1" fill="#707886"/><rect x="13" y="9" width="1" height="1" fill="#a8b0be"/><rect x="14" y="9" width="1" height="1" fill="#262834"/>
+    <rect x="2" y="10" width="1" height="1" fill="#262834"/><rect x="3" y="10" width="1" height="1" fill="#a8b0be"/><rect x="4" y="10" width="2" height="1" fill="#707886"/><rect x="6" y="10" width="4" height="1" fill="#eceff4"/><rect x="10" y="10" width="2" height="1" fill="#707886"/><rect x="12" y="10" width="1" height="1" fill="#a8b0be"/><rect x="13" y="10" width="1" height="1" fill="#262834"/>
+    <rect x="3" y="11" width="1" height="1" fill="#262834"/><rect x="4" y="11" width="2" height="1" fill="#707886"/><rect x="6" y="11" width="4" height="1" fill="#eceff4"/><rect x="10" y="11" width="2" height="1" fill="#707886"/><rect x="12" y="11" width="1" height="1" fill="#262834"/>
+    <rect x="4" y="12" width="1" height="1" fill="#262834"/><rect x="5" y="12" width="2" height="1" fill="#eceff4"/><rect x="7" y="12" width="2" height="1" fill="#16161e"/><rect x="9" y="12" width="2" height="1" fill="#eceff4"/><rect x="11" y="12" width="1" height="1" fill="#262834"/>
+    <rect x="5" y="13" width="1" height="1" fill="#262834"/><rect x="6" y="13" width="4" height="1" fill="#eceff4"/><rect x="10" y="13" width="1" height="1" fill="#262834"/>
+    <rect x="6" y="14" width="1" height="1" fill="#262834"/><rect x="7" y="14" width="2" height="1" fill="#16161e"/><rect x="9" y="14" width="1" height="1" fill="#262834"/>
+    <rect x="7" y="15" width="2" height="1" fill="#262834"/>
+  </svg>
+  <h1>PDF → Markdown</h1>
+  <span class="sub">pohání Microsoft MarkItDown</span>
+</header>
+
+<main>
+  <div class="drop" id="drop">
+    <div class="big">Přetáhni sem soubory nebo klikni pro výběr</div>
+    <div class="small">Převede je na Markdown, který rovnou vložíš do AI</div>
+    <div class="formats">PDF · Word · PowerPoint · Excel · obrázky · HTML · …</div>
+  </div>
+  <input type="file" id="fileInput" multiple>
+
+  <div class="toolbar" id="toolbar" style="display:none">
+    <span class="count" id="count"></span>
+    <button id="copyAll">📋 Kopírovat vše</button>
+    <button id="saveDisk">💾 Uložit do output/</button>
+    <button id="downloadZip">⬇️ Stáhnout vše (zip)</button>
+    <button id="clear">🗑️ Vyčistit</button>
+  </div>
+
+  <div id="results"></div>
+  <div class="empty" id="empty">Zatím nic převedeného.</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Aplikace funguje, ať už stránku otevřeš přes http://127.0.0.1:5000,
+// nebo dvojklikem na samotný HTML soubor (file://) či v náhledovém panelu.
+// Pokud nás neobsluhuje přímo náš Flask server, míříme API volání natvrdo
+// na lokální server (ten musí běžet – pohání ho Python/MarkItDown).
+// Když nás obsluhuje náš vlastní lokální server (jakýkoli localhost port),
+// stačí relativní cesty; jinak (file:// nebo náhledový panel) míříme natvrdo.
+const isLocalServer = /^(127\.0\.0\.1|localhost)(:\d+)?$/.test(location.host);
+const API = isLocalServer ? '' : 'http://127.0.0.1:5000';
+
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('fileInput');
+const resultsEl = document.getElementById('results');
+const emptyEl = document.getElementById('empty');
+const toolbar = document.getElementById('toolbar');
+const countEl = document.getElementById('count');
+const bot = document.getElementById('bot');
+let items = []; // {id, name, md_name, markdown, ok, error}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── drag & drop ──
+drop.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { upload([...e.target.files]); fileInput.value = ''; });
+;['dragenter','dragover'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+;['dragleave','drop'].forEach(ev =>
+  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => upload([...e.dataTransfer.files]));
+
+async function upload(files) {
+  if (!files.length) return;
+  const fd = new FormData();
+  files.forEach(f => fd.append('files', f));
+  bot.classList.add('spin');
+  drop.querySelector('.big').textContent = 'Převádím… ⏳';
+  try {
+    const r = await fetch(API + '/convert', { method: 'POST', body: fd });
+    const data = await r.json();
+    if (data.error) { toast(data.error); return; }
+    data.results.forEach(res => items.push(res));
+    render();
+    toast(`Hotovo: ${data.results.length} souborů`);
+  } catch (err) {
+    toast('Chyba: ' + err);
+  } finally {
+    bot.classList.remove('spin');
+    drop.querySelector('.big').textContent = 'Přetáhni sem soubory nebo klikni pro výběr';
+  }
+}
+
+function render() {
+  resultsEl.innerHTML = '';
+  if (!items.length) {
+    emptyEl.style.display = 'block';
+    toolbar.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  toolbar.style.display = 'flex';
+  const okCount = items.filter(i => i.ok).length;
+  countEl.textContent = `${items.length} souborů · ${okCount} OK`;
+
+  items.forEach((it, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card' + (it.ok ? '' : '');
+    const head = document.createElement('div');
+    head.className = 'card-head';
+    head.innerHTML = `
+      <span class="chev">▶</span>
+      <span class="name">${esc(it.name)}</span>
+      ${it.ok
+        ? `<span class="meta">${it.chars.toLocaleString('cs')} znaků</span><span class="badge ok">OK</span>`
+        : `<span class="badge err">CHYBA</span>`}
+    `;
+    head.addEventListener('click', () => card.classList.toggle('open'));
+    card.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    if (it.ok) {
+      const actions = document.createElement('div');
+      actions.className = 'card-actions';
+      const copyBtn = btn('📋 Kopírovat', () => { copy(it.markdown); });
+      const dlBtn = btn('⬇️ Stáhnout .md', () => { window.open(API + '/download/' + it.id, '_blank'); });
+      actions.append(copyBtn, dlBtn);
+      const ta = document.createElement('textarea');
+      ta.value = it.markdown; ta.readOnly = true;
+      body.append(actions, ta);
+    } else {
+      const e = document.createElement('div');
+      e.className = 'err-msg';
+      e.textContent = '⚠️ ' + it.error;
+      body.appendChild(e);
+    }
+    card.appendChild(body);
+    resultsEl.appendChild(card);
+  });
+}
+
+function btn(label, fn) {
+  const b = document.createElement('button');
+  b.textContent = label; b.addEventListener('click', e => { e.stopPropagation(); fn(); });
+  return b;
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('Zkopírováno ✓'); }
+  catch { toast('Kopírování selhalo'); }
+}
+
+// ── toolbar akce ──
+document.getElementById('copyAll').addEventListener('click', () => {
+  const ok = items.filter(i => i.ok);
+  const all = ok.map(i => `# ${i.name}\n\n${i.markdown}`).join('\n\n---\n\n');
+  copy(all);
+});
+document.getElementById('downloadZip').addEventListener('click', () => {
+  const ids = items.filter(i => i.ok).map(i => i.id).join(',');
+  if (!ids) return toast('Nic ke stažení');
+  window.open(API + '/download_all?ids=' + ids, '_blank');
+});
+document.getElementById('saveDisk').addEventListener('click', async () => {
+  const ids = items.filter(i => i.ok).map(i => i.id);
+  if (!ids.length) return toast('Nic k uložení');
+  const r = await fetch(API + '/save_to_disk', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids })
+  });
+  const d = await r.json();
+  toast(`Uloženo ${d.saved.length} souborů do output/`);
+});
+document.getElementById('clear').addEventListener('click', () => { items = []; render(); });
+
+// ── pixel-art easter egg ──
+let clicks = 0;
+bot.addEventListener('click', () => {
+  clicks++;
+  bot.classList.add('spin');
+  setTimeout(() => bot.classList.remove('spin'), 700);
+  if (clicks === 5) { toast('🐺 Auuuuu! Vlk zavyl.'); clicks = 0; }
+});
+</script>
+</body>
+</html>

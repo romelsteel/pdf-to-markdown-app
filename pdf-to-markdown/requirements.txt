@@ -1,0 +1,5 @@
+markitdown[all]>=0.1.6
+flask>=3.0
+pywebview>=5.0
+pyinstaller>=6.0
+pillow>=10.0
