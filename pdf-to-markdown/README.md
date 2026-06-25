@@ -12,6 +12,13 @@ aby se daly snadno vložit do AI (Claude, ChatGPT, …). Pohání ji
 - 📋 **Kopírovat** – jeden soubor i všechny najednou (rovnou do AI chatu)
 - 💾 **Uložit na disk** – do složky `output/`
 - ⬇️ **Stáhnout** – jednotlivě jako `.md` nebo všechny v `.zip`
+- 🧹 **Vyčistit text** – opraví typické nečistoty z PDF (rozdělená slova,
+  zalomené řádky, čísla stránek, `(cid:NN)`, ligatury). Zapnuto ve výchozím stavu.
+- ✂️ **Rozdělit pro AI** – volitelné (zapneš zaškrtnutím); velký výstup rozseká
+  na části dané velikosti (v tokenech), aby se vešly do jedné zprávy pro AI
+- 🔢 **Počítadlo** – u každého souboru ukáže znaky a odhad tokenů
+- 🌙 **Tmavý režim** – přepínač v hlavičce (pamatuje si volbu)
+- 🌍 **Jazyk** – čeština / angličtina (přepínač v hlavičce)
 
 Aplikace se otevře jako **samostatné okno** (žádný prohlížeč ani adresa) – pohání
 ho WebView2, který je ve Windows 11 standardně k dispozici.

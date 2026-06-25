@@ -10,6 +10,7 @@ Pak otevři: http://127.0.0.1:5000
 
 import io
 import os
+import re
 import sys
 import uuid
 import socket
@@ -118,7 +119,55 @@ _LOCK = threading.Lock()
 OUTPUT_DIR = os.path.join(app_dir(), "output")
 
 
-def _to_markdown(file_storage) -> str:
+# ── čištění výstupu (oprava typických artefaktů z PDF) ──────────────────────
+_LIGATURES = {
+    "ﬁ": "fi", "ﬂ": "fl", "ﬀ": "ff", "ﬃ": "ffi", "ﬄ": "ffl",
+    "ﬅ": "ft", "ﬆ": "st",
+}
+# řádek, který nesmíme spojit s předchozím (nadpisy, odrážky, tabulky, kód…)
+_BLOCK_RE = re.compile(r"^\s*(#{1,6}\s|[-*+]\s|\d+[.)]\s|>|\||```|=== )")
+
+
+def _unwrap_lines(text: str) -> str:
+    """Spojí natvrdo zalomené řádky uvnitř odstavce do jednoho řádku."""
+    out: list[str] = []
+    para: list[str] = []
+
+    def flush():
+        if para:
+            out.append(" ".join(s.strip() for s in para))
+            para.clear()
+
+    for line in text.split("\n"):
+        if line.strip() == "":
+            flush()
+            out.append("")
+        elif _BLOCK_RE.match(line):
+            flush()
+            out.append(line)
+        else:
+            para.append(line)
+    flush()
+    return "\n".join(out)
+
+
+def clean_markdown(text: str) -> str:
+    """Opraví typické nečistoty z PDF: ligatury, (cid:NN), dělení slov,
+    zalomené řádky, čísla stránek a přebytečné prázdné řádky."""
+    if not text:
+        return text
+    for a, b in _LIGATURES.items():
+        text = text.replace(a, b)
+    text = re.sub(r"\(cid:\d+\)", "", text)          # zbytky nečitelných znaků
+    text = text.replace("\f", "\n\n")                 # konce stránek
+    text = re.sub(r"(\w)-\n(\w)", r"\1\2", text)      # slovo roz-\ndělené koncem řádku
+    text = re.sub(r"(?m)^[ \t]*\d{1,4}[ \t]*$\n?", "", text)  # osamocená čísla stránek
+    text = _unwrap_lines(text)                          # spojení zalomených řádků
+    text = re.sub(r"\n{3,}", "\n\n", text)            # max. jeden prázdný řádek
+    return text.strip() + "\n"
+
+
+def _to_markdown(file_storage, clean: bool = False) -> str:
     """Převede nahraný soubor na Markdown pomocí MarkItDown."""
     original = file_storage.filename or "soubor"
     suffix = os.path.splitext(original)[1] or ""
@@ -129,7 +178,8 @@ def _to_markdown(file_storage) -> str:
         tmp_path = tmp.name
     try:
         result = _md.convert(tmp_path)
-        return result.text_content or ""
+        text = result.text_content or ""
+        return clean_markdown(text) if clean else text
     finally:
         try:
             os.unlink(tmp_path)
@@ -153,13 +203,15 @@ def convert():
     if not files:
         return jsonify({"error": "Žádné soubory."}), 400
 
+    clean = request.form.get("clean", "false").lower() == "true"
+
     out = []
     for f in files:
         if not f or not f.filename:
             continue
         entry = {"name": f.filename}
         try:
-            markdown = _to_markdown(f)
+            markdown = _to_markdown(f, clean=clean)
             file_id = uuid.uuid4().hex
             md_name = _md_name(f.filename)
             with _LOCK:
@@ -275,6 +327,12 @@ def _wait_until_up(timeout: float = 15.0) -> bool:
 def main():
     global PORT
     PORT = pick_port(PORT)
+
+    # Jen server, bez okna/prohlížeče (pro testy a náhled).
+    if "--server-only" in sys.argv:
+        _run_server()
+        return
+
     url = f"http://127.0.0.1:{PORT}"
 
     # Flask běží na pozadí; hlavní vlákno drží okno aplikace.
