@@ -253,6 +253,7 @@ const I18N = {
     t_copied: 'Zkopírováno ✓', t_copyfail: 'Kopírování selhalo',
     t_nodl: 'Nic ke stažení', t_nosave: 'Nic k uložení',
     t_saved: 'Uloženo {n} souborů do output/',
+    drop_hint: '🐺 Klikni do pole a vyber soubory (přetažení sem okno nepřevezme).',
     howl: '🐺 Auuuuu! Vlk zavyl.',
   },
   en: {
@@ -277,6 +278,7 @@ const I18N = {
     t_copied: 'Copied ✓', t_copyfail: 'Copy failed',
     t_nodl: 'Nothing to download', t_nosave: 'Nothing to save',
     t_saved: 'Saved {n} files to output/',
+    drop_hint: '🐺 Click the box and pick files (the window can\'t catch the drop).',
     howl: '🐺 Awooo! The wolf howled.',
   },
 };
@@ -329,6 +331,11 @@ function applyLang(lang) {
   localStorage.setItem('lang', lang);
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  // části mimo [data-i18n], které je třeba přeložit ručně
+  document.title = t('title');
+  [...chunkSizeSel.options].forEach(o => {
+    o.textContent = '~' + nfmt(parseInt(o.value, 10)) + ' ' + t('tokens_unit');
+  });
   langSel.value = lang;
   if (!converting) dropBig.textContent = t('drop_big');
   render();
@@ -350,38 +357,59 @@ splitToggle.addEventListener('change', () => {
 });
 updateSplitUI();
 
-// ── drag & drop ──
-drop.addEventListener('click', () => fileInput.click());
+// ── výběr souborů (klik) ──
+// Běžíme-li v nativním okně (pywebview), použijeme systémový dialog – uvnitř
+// WebView2 je spolehlivější než <input type=file> a nikdy soubor „neotevře“.
+function isPywebview() {
+  return !!(window.pywebview && window.pywebview.api && window.pywebview.api.pick_files);
+}
+drop.addEventListener('click', async () => {
+  if (isPywebview()) {
+    try {
+      const paths = await window.pywebview.api.pick_files();
+      if (paths && paths.length) uploadPaths(paths);
+      return;
+    } catch (err) { /* když dialog selže, spadneme na <input type=file> */ }
+  }
+  fileInput.click();
+});
 fileInput.addEventListener('change', e => { upload([...e.target.files]); fileInput.value = ''; });
 
-// DŮLEŽITÉ: bez tohoto by prohlížeč/okno přetažený soubor jen OTEVŘELO.
-// Odchytneme drag&drop na celém okně, zrušíme výchozí chování a soubory
-// puštěné kdekoli v okně předáme k převodu.
+// ── drag & drop ──
+// DŮLEŽITÉ: bez preventDefault by okno/prohlížeč přetažený soubor jen OTEVŘELO
+// (zobrazilo PDF) místo převodu. Odchytneme drag&drop na celém okně a soubory
+// puštěné kdekoli předáme k převodu.
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev =>
   window.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-window.addEventListener('dragover', () => drop.classList.add('over'));
+window.addEventListener('dragover', e => {
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+  drop.classList.add('over');
+});
 window.addEventListener('dragleave', e => { if (!e.relatedTarget) drop.classList.remove('over'); });
 window.addEventListener('drop', e => {
   drop.classList.remove('over');
   const files = e.dataTransfer && e.dataTransfer.files;
-  if (files && files.length) upload([...files]);
+  if (files && files.length) { upload([...files]); return; }
+  // V nativním okně se přetažení souborů z Průzkumníka občas nepřenese do
+  // JavaScriptu – poradíme uživateli klik (ten otevře systémový dialog).
+  if (isPywebview()) toast(t('drop_hint'));
 });
 
-async function upload(files) {
-  if (!files.length) return;
-  const fd = new FormData();
-  files.forEach(f => fd.append('files', f));
-  fd.append('clean', cleanToggle.checked ? 'true' : 'false');
+function applyResults(data) {
+  if (data.error) { toast(data.error); return; }
+  data.results.forEach(res => items.push(res));
+  render();
+  toast(t('t_done', { n: data.results.length }));
+}
+
+// Společný „obal“ kolem převodu: točící se vlk, hláška, ošetření chyby.
+async function runConvert(doFetch) {
   converting = true;
   bot.classList.add('spin');
   dropBig.textContent = t('converting');
   try {
-    const r = await fetch(API + '/convert', { method: 'POST', body: fd });
-    const data = await r.json();
-    if (data.error) { toast(data.error); return; }
-    data.results.forEach(res => items.push(res));
-    render();
-    toast(t('t_done', { n: data.results.length }));
+    const r = await doFetch();
+    applyResults(await r.json());
   } catch (err) {
     toast(t('t_error', { e: err }));
   } finally {
@@ -389,6 +417,25 @@ async function upload(files) {
     bot.classList.remove('spin');
     dropBig.textContent = t('drop_big');
   }
+}
+
+// Převod nahraných souborů (drag&drop nebo <input type=file>).
+async function upload(files) {
+  if (!files.length) return;
+  const fd = new FormData();
+  files.forEach(f => fd.append('files', f));
+  fd.append('clean', cleanToggle.checked ? 'true' : 'false');
+  await runConvert(() => fetch(API + '/convert', { method: 'POST', body: fd }));
+}
+
+// Převod podle cest na disku (z nativního dialogu pywebview).
+async function uploadPaths(paths) {
+  if (!paths || !paths.length) return;
+  await runConvert(() => fetch(API + '/convert_paths', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paths, clean: cleanToggle.checked }),
+  }));
 }
 
 function render() {
@@ -528,3 +575,6 @@ bot.addEventListener('click', () => {
 // ── start ──
 applyTheme(localStorage.getItem('theme') || 'light');
 applyLang(LANG);
+</script>
+</body>
+</html>

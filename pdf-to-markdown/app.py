@@ -103,6 +103,7 @@ def _cors(resp):
 
 
 @app.route("/convert", methods=["OPTIONS"])
+@app.route("/convert_paths", methods=["OPTIONS"])
 @app.route("/save_to_disk", methods=["OPTIONS"])
 def _preflight():
     return ("", 204)
@@ -187,6 +188,13 @@ def _to_markdown(file_storage, clean: bool = False) -> str:
             pass
 
 
+def _to_markdown_path(path: str, clean: bool = False) -> str:
+    """Převede soubor zadaný cestou (z nativního dialogu / drag&drop v okně)."""
+    result = _md.convert(path)
+    text = result.text_content or ""
+    return clean_markdown(text) if clean else text
+
+
 def _md_name(original: str) -> str:
     base = os.path.splitext(os.path.basename(original))[0] or "dokument"
     return f"{base}.md"
@@ -214,6 +222,46 @@ def convert():
             markdown = _to_markdown(f, clean=clean)
             file_id = uuid.uuid4().hex
             md_name = _md_name(f.filename)
+            with _LOCK:
+                _RESULTS[file_id] = {
+                    "name": md_name,
+                    "markdown": markdown,
+                    "created": datetime.now(),
+                }
+            entry.update(
+                {
+                    "id": file_id,
+                    "md_name": md_name,
+                    "markdown": markdown,
+                    "chars": len(markdown),
+                    "ok": True,
+                }
+            )
+        except Exception as exc:  # noqa: BLE001 – chceme chybu ukázat uživateli
+            entry.update({"ok": False, "error": str(exc)})
+        out.append(entry)
+
+    return jsonify({"results": out})
+
+
+@app.route("/convert_paths", methods=["POST"])
+def convert_paths():
+    """Převede soubory podle cest na disku – používá nativní výběr v okně
+    (pywebview), kde je spolehlivější než HTML5 výběr/přetažení."""
+    data = request.get_json(silent=True) or {}
+    paths = data.get("paths") or []
+    clean = bool(data.get("clean"))
+    if not paths:
+        return jsonify({"error": "Žádné soubory."}), 400
+
+    out = []
+    for p in paths:
+        name = os.path.basename(p) or "soubor"
+        entry = {"name": name}
+        try:
+            markdown = _to_markdown_path(p, clean=clean)
+            file_id = uuid.uuid4().hex
+            md_name = _md_name(name)
             with _LOCK:
                 _RESULTS[file_id] = {
                     "name": md_name,
@@ -306,6 +354,34 @@ def save_to_disk():
     return jsonify({"folder": OUTPUT_DIR, "saved": saved})
 
 
+class Api:
+    """Most mezi JavaScriptem v okně a Pythonem (pywebview).
+
+    Otevře nativní systémový dialog pro výběr souborů. Uvnitř okna (WebView2)
+    je to spolehlivější cesta, jak dostat soubory dovnitř, než HTML5 výběr nebo
+    přetažení – a hlavně nikdy „neotevře soubor v prohlížeči“.
+    """
+
+    def __init__(self):
+        self.window = None
+
+    def pick_files(self):
+        """Vrátí seznam absolutních cest k vybraným souborům (nebo prázdný)."""
+        import webview
+
+        if self.window is None:
+            return []
+        file_types = (
+            "Dokumenty (*.pdf;*.docx;*.doc;*.pptx;*.ppt;*.xlsx;*.xls;"
+            "*.html;*.htm;*.txt;*.md;*.csv;*.png;*.jpg;*.jpeg)",
+            "Všechny soubory (*.*)",
+        )
+        paths = self.window.create_file_dialog(
+            webview.OPEN_DIALOG, allow_multiple=True, file_types=file_types
+        )
+        return list(paths) if paths else []
+
+
 def _run_server():
     app.run(host="127.0.0.1", port=PORT, debug=False, use_reloader=False, threaded=True)
 
@@ -345,13 +421,16 @@ def main():
         try:
             import webview
 
-            webview.create_window(
+            api = Api()
+            window = webview.create_window(
                 "PDF → Markdown",
                 url,
                 width=1100,
                 height=820,
                 min_size=(760, 560),
+                js_api=api,
             )
+            api.window = window
             webview.start()
             return  # okno zavřeno -> konec
         except Exception as exc:  # noqa: BLE001
