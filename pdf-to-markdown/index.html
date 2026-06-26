@@ -353,11 +353,19 @@ updateSplitUI();
 // ── drag & drop ──
 drop.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', e => { upload([...e.target.files]); fileInput.value = ''; });
-;['dragenter','dragover'].forEach(ev =>
-  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
-;['dragleave','drop'].forEach(ev =>
-  drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
-drop.addEventListener('drop', e => upload([...e.dataTransfer.files]));
+
+// DŮLEŽITÉ: bez tohoto by prohlížeč/okno přetažený soubor jen OTEVŘELO.
+// Odchytneme drag&drop na celém okně, zrušíme výchozí chování a soubory
+// puštěné kdekoli v okně předáme k převodu.
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev =>
+  window.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+window.addEventListener('dragover', () => drop.classList.add('over'));
+window.addEventListener('dragleave', e => { if (!e.relatedTarget) drop.classList.remove('over'); });
+window.addEventListener('drop', e => {
+  drop.classList.remove('over');
+  const files = e.dataTransfer && e.dataTransfer.files;
+  if (files && files.length) upload([...files]);
+});
 
 async function upload(files) {
   if (!files.length) return;
