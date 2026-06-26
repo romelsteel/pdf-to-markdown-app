@@ -1,60 +1,62 @@
 # PDF → Markdown
 
-Lokální webová aplikace, která převádí PDF a další dokumenty na **Markdown**,
-aby se daly snadno vložit do AI (Claude, ChatGPT, …). Pohání ji
+**🇬🇧 English** · [🇨🇿 Čeština](README.cs.md)
+
+A local app that converts PDFs and other documents to **Markdown**, so they're
+easy to paste into an AI (Claude, ChatGPT, …). Powered by
 [Microsoft MarkItDown](https://github.com/microsoft/markitdown).
 
-## Co umí
+## Features
 
-- 🖱️ **Drag & drop** – přetáhni soubory do okna (nebo klikni a vyber)
-- 📚 **Dávkově** – víc souborů najednou
-- 📄 **Spousta formátů** – PDF, Word, PowerPoint, Excel, obrázky, HTML a další
-- 📋 **Kopírovat** – jeden soubor i všechny najednou (rovnou do AI chatu)
-- 💾 **Uložit na disk** – do složky `output/`
-- ⬇️ **Stáhnout** – jednotlivě jako `.md` nebo všechny v `.zip`
-- 🧹 **Vyčistit text** – opraví typické nečistoty z PDF (rozdělená slova,
-  zalomené řádky, čísla stránek, `(cid:NN)`, ligatury). Zapnuto ve výchozím stavu.
-- ✂️ **Rozdělit pro AI** – volitelné (zapneš zaškrtnutím); velký výstup rozseká
-  na části dané velikosti (v tokenech), aby se vešly do jedné zprávy pro AI
-- 🔢 **Počítadlo** – u každého souboru ukáže znaky a odhad tokenů
-- 🌙 **Tmavý režim** – přepínač v hlavičce (pamatuje si volbu)
-- 🌍 **Jazyk** – čeština / angličtina (přepínač v hlavičce)
+- 🖱️ **Drag & drop** – drop files into the window (or click to choose)
+- 📚 **Batch** – many files at once
+- 📄 **Lots of formats** – PDF, Word, PowerPoint, Excel, images, HTML and more
+- 📋 **Copy** – one file or all of them at once (straight into your AI chat)
+- 💾 **Save to disk** – into the `output/` folder
+- ⬇️ **Download** – individually as `.md` or all together as a `.zip`
+- 🧹 **Clean up text** – fixes typical PDF artifacts (split words, hard-wrapped
+  lines, page numbers, `(cid:NN)`, ligatures). On by default.
+- ✂️ **Split for AI** – optional (turn on with a checkbox); chops large output
+  into chunks of a chosen size (in tokens) so each fits in one AI message
+- 🔢 **Counter** – shows characters and an estimated token count per file
+- 🌙 **Dark mode** – toggle in the header (remembers your choice)
+- 🌍 **Language** – Czech / English (switcher in the header)
 
-Aplikace se otevře jako **samostatné okno** (žádný prohlížeč ani adresa) – pohání
-ho WebView2, který je ve Windows 11 standardně k dispozici.
+The app opens as a **standalone window** (no browser, no address bar) – powered
+by WebView2, which is available by default on Windows 11.
 
-## Spuštění
+## Running it
 
-**Úplně nejjednodušší – samostatné .exe (bez Pythonu):**
-Spusť jednou `build_exe.bat` → vznikne `dist\PDF-to-Markdown.exe` s ikonou vlka.
-Ten pak můžeš přenést na jakýkoli Windows počítač a stačí na něj **dvojkliknout** –
-otevře se jako normální appka. Python instalovat netřeba.
-(Soubor je velký, ~stovky MB – MarkItDown s sebou táhne dost knihoven.)
+**Easiest – standalone .exe (no Python):**
+Run `build_exe.bat` once → it produces `dist\PDF-to-Markdown.exe` with the wolf
+icon. You can then copy that to any Windows PC and just **double-click** it – it
+opens like a normal app. No Python needed.
+(The file is large, ~hundreds of MB – MarkItDown pulls in a lot of libraries.)
 
-**Se zdrojáky:** dvojklik na `run.bat` (při prvním spuštění doinstaluje, co chybí).
+**From source:** double-click `run.bat` (first run installs anything missing).
 
-**Ručně:**
+**Manually:**
 
 ```bash
 py -m pip install -r requirements.txt
 py app.py
 ```
 
-### Režim prohlížeče
+### Browser mode
 
-Když chceš místo okna použít prohlížeč (nebo okno z nějakého důvodu nejde
-otevřít), spusť appku s přepínačem:
+If you'd rather use a browser instead of the window (or the window won't open for
+some reason), run the app with a flag:
 
 ```bash
 py app.py --web
 ```
 
-Pak běží na <http://127.0.0.1:5000> a funguje i dvojklik na `index.html`.
+It then runs at <http://127.0.0.1:5000> and double-clicking `index.html` works too.
 
-## Poznámky
+## Notes
 
-- Běží jen lokálně na tvém počítači – soubory nikam neodcházejí.
-- Naskenovaná PDF (obrázky bez textové vrstvy) MarkItDown bez OCR nepřečte;
-  u takových je výsledek prázdný.
+- Runs entirely locally on your computer – files never leave your machine.
+- Scanned PDFs (images with no text layer) can't be read by MarkItDown without
+  OCR; for those the result is empty.
 
-🐺 *Tip: klikni pětkrát na vlka v hlavičce.*
+🐺 *Tip: click the wolf in the header five times.*
